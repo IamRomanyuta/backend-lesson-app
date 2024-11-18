@@ -11,5 +11,7 @@
     "strictPropertyInitialization": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
+    "incremental": true,
+    "sourceMap": true,
   }
 }
