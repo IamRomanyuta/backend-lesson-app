@@ -1,47 +1,40 @@
 import { Request, Response, NextFunction } from 'express';
-import { Op, Includeable, WhereOptions } from 'sequelize';
-import { Lesson } from '../models/Lesson';
-import { Teacher } from '../models/Teacher';
-import { Student } from '../models/Student';
-import { LessonResponse, LessonQueryParams } from '../interfaces/lessonInterfaces';
+import { PrismaClient, Prisma } from '@prisma/client';
 import logger from '../utils/logger';
+import { LessonResponse, LessonQueryParams } from '../interfaces/lessonInterfaces';
 
-const getWhereCondition = (query: LessonQueryParams): WhereOptions => {
-  const where: WhereOptions = {};
-  const { date, status } = query;
+const prisma = new PrismaClient();
 
-  if (date) {
-    const dates = date.split(',');
-    if (dates.length === 1) {
-      where.date = dates[0];
-    } else if (dates.length === 2) {
-      where.date = { [Op.between]: [dates[0], dates[1]] };
-    }
-  }
-
-  if (status !== undefined) {
-    where.status = parseInt(status, 10);
-  }
-
-  logger.info(`Generated WHERE condition: ${JSON.stringify(where)}`);
-  return where;
-};
-
-export const getLessons = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+const getLessons = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { teacherIds, studentsCount, page = '1', lessonsPerPage = '5' } = req.query as LessonQueryParams;
+    const { teacherIds, studentsCount, page = '1', lessonsPerPage = '5', date, status } = req.query as LessonQueryParams;
 
     const parsedPage = parseInt(page, 10);
     const parsedLessonsPerPage = parseInt(lessonsPerPage, 10);
-    
+
     if (parsedPage <= 0 || parsedLessonsPerPage <= 0) {
       logger.warn('Invalid page or lessonsPerPage value.');
       res.status(400).json({ error: 'Page and lessonsPerPage must be positive integers.' });
       return;
     }
 
-    const where = getWhereCondition(req.query as LessonQueryParams);
-    const include: Includeable[] = [];
+    const where: Prisma.LessonWhereInput = {};
+
+    if (date) {
+      const dates = date.split(',');
+      if (dates.length === 1) {
+        where.date = new Date(dates[0]);
+      } else if (dates.length === 2) {
+        where.date = {
+          gte: new Date(dates[0]),
+          lte: new Date(dates[1]),
+        };
+      }
+    }
+
+    if (status !== undefined) {
+      where.status = parseInt(status, 10);
+    }
 
     if (teacherIds) {
       const teacherIdsArray = teacherIds.split(',').map((id) => parseInt(id, 10));
@@ -50,40 +43,36 @@ export const getLessons = async (req: Request, res: Response, next: NextFunction
         res.status(400).json({ error: 'Teacher IDs must be valid integers.' });
         return;
       }
-      include.push({
-        model: Teacher,
-        as: 'teachers',
-        where: { id: { [Op.in]: teacherIdsArray } },
-        through: {
-          attributes: [],
+      where.lessonTeachers = {
+        some: {
+          teacherId: { in: teacherIdsArray },
         },
-      });
-    } else {
-      include.push({
-        model: Teacher,
-        as: 'teachers',
-        through: {
-          attributes: [],
-        },
-      });
+      };
     }
 
-    include.push({
-      model: Student,
-      as: 'students',
-      through: {
-        attributes: ['visit'],
+    const skip = (parsedPage - 1) * parsedLessonsPerPage;
+    const take = parsedLessonsPerPage;
+
+    const lessons = await prisma.lesson.findMany({
+      where,
+      include: {
+        lessonTeachers: {
+          include: {
+            teacher: true,
+          },
+        },
+        lessonStudents: {
+          include: {
+            student: true,
+          },
+        },
       },
+      skip,
+      take,
     });
 
-    logger.info(`Executing Lesson.findAll with where: ${JSON.stringify(where)} and include: ${JSON.stringify(include)}`);
-
-    const offset = (parsedPage - 1) * parsedLessonsPerPage;
-    const limit = parsedLessonsPerPage;
-
-    const lessons = await Lesson.findAll({ where, include, offset, limit });
-
     let filteredLessons = lessons;
+
     if (studentsCount) {
       const countRange = studentsCount.split(',').map((count) => parseInt(count, 10));
       if (countRange.some(isNaN)) {
@@ -93,7 +82,7 @@ export const getLessons = async (req: Request, res: Response, next: NextFunction
       }
 
       filteredLessons = lessons.filter((lesson) => {
-        const studentCount = lesson.students ? lesson.students.length : 0;
+        const studentCount = lesson.lessonStudents.length;
         if (countRange.length === 1) {
           return studentCount === countRange[0];
         } else if (countRange.length === 2) {
@@ -111,19 +100,19 @@ export const getLessons = async (req: Request, res: Response, next: NextFunction
 
     const response: LessonResponse[] = filteredLessons.map((lesson) => ({
       id: lesson.id,
-      date: lesson.date,
-      title: lesson.title,
-      status: lesson.status,
-      visitCount: lesson.students ? lesson.students.filter((student) => student.lessonStudent?.visit).length : 0,
-      students: lesson.students ? lesson.students.map((student) => ({
-        id: student.id,
-        name: student.name,
-        visit: student.lessonStudent?.visit || false,
-      })) : [],
-      teachers: lesson.teachers ? lesson.teachers.map((teacher) => ({
-        id: teacher.id,
-        name: teacher.name,
-      })) : [],
+      date: lesson.date.toISOString().split('T')[0],
+      title: lesson.title ?? '',
+      status: lesson.status ?? 0,
+      visitCount: lesson.lessonStudents.filter((ls) => ls.visit).length,
+      students: lesson.lessonStudents.map((ls) => ({
+        id: ls.student.id,
+        name: ls.student.name ?? '', // Если имя `null`, заменить на пустую строку
+        visit: ls.visit,
+      })),
+      teachers: lesson.lessonTeachers.map((lt) => ({
+        id: lt.teacher.id,
+        name: lt.teacher.name ?? '', // Если имя `null`, заменить на пустую строку
+      })),
     }));
 
     logger.info(`Lessons retrieved successfully. Count: ${response.length}`);
@@ -139,3 +128,4 @@ export const getLessons = async (req: Request, res: Response, next: NextFunction
   }
 };
 
+export { getLessons };

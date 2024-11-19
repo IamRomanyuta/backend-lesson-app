@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model LessonStudent {
+  lessonId  Int     @map("lesson_id")
+  studentId Int     @map("student_id")
+  visit     Boolean @default(false)
+
+  lesson  Lesson  @relation(fields: [lessonId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  student Student @relation(fields: [studentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([lessonId, studentId]) // Композитный первичный ключ для связки
+  @@map("lesson_students") // Соответствие таблице "lesson_students" в базе данных
+}
+
+model LessonTeacher {
+  lessonId  Int @map("lesson_id")
+  teacherId Int @map("teacher_id")
+
+  lesson  Lesson  @relation(fields: [lessonId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([lessonId, teacherId]) // Композитный первичный ключ для связки
+  @@map("lesson_teachers") // Соответствие таблице "lesson_teachers" в базе данных
+}
+
+model Lesson {
+  id     Int      @id @default(autoincrement())
+  date   DateTime @db.Date
+  title  String?  @db.VarChar(100)
+  status Int?     @default(0)
+
+  lessonStudents LessonStudent[]
+  lessonTeachers LessonTeacher[]
+
+  @@map("lessons") // Соответствие таблице "lessons" в базе данных
+}
+
+model Student {
+  id   Int     @id @default(autoincrement())
+  name String? @db.VarChar(10)
+
+  lessonStudents LessonStudent[]
+
+  @@map("students") // Соответствие таблице "students" в базе данных
+}
+
+model Teacher {
+  id   Int     @id @default(autoincrement())
+  name String? @db.VarChar(10)
+
+  lessonTeachers LessonTeacher[]
+
+  @@map("teachers") // Соответствие таблице "teachers" в базе данных
+}
