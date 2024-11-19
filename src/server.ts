@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import app from './app';
-import { sequelize } from './models'; // Импорт моделей и ассоциаций
 import logger from './utils/logger';
+import prisma from './config/prisma';
 
 dotenv.config();
 
@@ -9,11 +9,8 @@ const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   try {
-    await sequelize.authenticate();
+    await prisma.$connect();
     logger.info('Database connection has been established successfully.');
-
-    await sequelize.sync();
-    logger.info('Database synchronization completed successfully.');
 
     app.listen(PORT, () => {
       logger.info(`Server is running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);

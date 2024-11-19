@@ -1,0 +1,78 @@
+2024-11-19 15:41:28 [info]: Database connection has been established successfully.
+2024-11-19 15:41:28 [info]: Server is running on port 3000 in development mode
+2024-11-19 15:41:38 [error]: Error retrieving lessons: TypeError: Cannot read properties of undefined (reading 'findMany')
+2024-11-19 15:41:38 [info]: ::1 - - [19/Nov/2024:12:41:38 +0000] "GET /api/v1/lessons HTTP/1.1" 500 41 "-" "curl/8.5.0"
+2024-11-19 15:53:56 [info]: Database connection has been established successfully.
+2024-11-19 15:53:56 [info]: Server is running on port 3000 in development mode
+2024-11-19 15:54:01 [error]: Error retrieving lessons: 
+Invalid `prisma.lesson.findMany()` invocation in
+/home/andrey/practice/backend-lesson-app/dist/controllers/lessonController.js:51:45
+
+  48 }
+  49 const skip = (parsedPage - 1) * parsedLessonsPerPage;
+  50 const take = parsedLessonsPerPage;
+→ 51 const lessons = await prisma.lesson.findMany(
+The table `public.Lesson` does not exist in the current database.
+2024-11-19 15:54:01 [info]: ::1 - - [19/Nov/2024:12:54:01 +0000] "GET /api/v1/lessons HTTP/1.1" 500 379 "-" "curl/8.5.0"
+2024-11-19 15:56:34 [info]: Database connection has been established successfully.
+2024-11-19 15:56:34 [info]: Server is running on port 3000 in development mode
+2024-11-19 15:56:41 [error]: Error retrieving lessons: 
+Invalid `prisma.lesson.findMany()` invocation in
+/home/andrey/practice/backend-lesson-app/dist/controllers/lessonController.js:52:45
+
+  49 const skip = (parsedPage - 1) * parsedLessonsPerPage;
+  50 const take = parsedLessonsPerPage;
+  51 // Изменено на `lesson`, чтобы соответствовать названию таблицы в базе данных
+→ 52 const lessons = await prisma.lesson.findMany(
+The table `public.Lesson` does not exist in the current database.
+2024-11-19 15:56:41 [info]: ::1 - - [19/Nov/2024:12:56:41 +0000] "GET /api/v1/lessons HTTP/1.1" 500 511 "-" "curl/8.5.0"
+2024-11-19 16:02:09 [info]: Database connection has been established successfully.
+2024-11-19 16:02:09 [info]: Server is running on port 3000 in development mode
+2024-11-19 16:02:21 [error]: Error retrieving lessons: 
+Invalid `prisma.lesson.findMany()` invocation in
+/home/andrey/practice/backend-lesson-app/dist/controllers/lessonController.js:52:45
+
+  49 const skip = (parsedPage - 1) * parsedLessonsPerPage;
+  50 const take = parsedLessonsPerPage;
+  51 // Используем правильное имя модели "lesson"
+→ 52 const lessons = await prisma.lesson.findMany(
+The table `public.Lesson` does not exist in the current database.
+2024-11-19 16:02:21 [info]: ::1 - - [19/Nov/2024:13:02:21 +0000] "GET /api/v1/lessons HTTP/1.1" 500 453 "-" "curl/8.5.0"
+2024-11-19 16:06:27 [info]: Database connection has been established successfully.
+2024-11-19 16:06:27 [info]: Server is running on port 3000 in development mode
+2024-11-19 16:06:39 [error]: Error retrieving lessons: 
+Invalid `prisma.lesson.findMany()` invocation in
+/home/andrey/practice/backend-lesson-app/dist/controllers/lessonController.js:52:45
+
+  49 const skip = (parsedPage - 1) * parsedLessonsPerPage;
+  50 const take = parsedLessonsPerPage;
+  51 // Используем правильное имя модели "lesson"
+→ 52 const lessons = await prisma.lesson.findMany(
+The column `lesson_teachers.lessonId` does not exist in the current database.
+2024-11-19 16:06:39 [info]: ::1 - - [19/Nov/2024:13:06:39 +0000] "GET /api/v1/lessons HTTP/1.1" 500 465 "-" "curl/8.5.0"
+2024-11-19 16:09:40 [info]: Database connection has been established successfully.
+2024-11-19 16:09:40 [info]: Server is running on port 3000 in development mode
+2024-11-19 16:09:54 [info]: Lessons retrieved successfully. Count: 5
+2024-11-19 16:09:54 [info]: ::1 - - [19/Nov/2024:13:09:54 +0000] "GET /api/v1/lessons HTTP/1.1" 200 1079 "-" "curl/8.5.0"
+2024-11-19 16:13:16 [info]: Lessons retrieved successfully. Count: 5
+2024-11-19 16:13:16 [info]: ::1 - - [19/Nov/2024:13:13:16 +0000] "GET /api/v1/lessons HTTP/1.1" 200 1079 "-" "curl/8.5.0"
+2024-11-19 16:13:23 [info]: Lessons retrieved successfully. Count: 1
+2024-11-19 16:13:23 [info]: ::1 - - [19/Nov/2024:13:13:23 +0000] "GET /api/v1/lessons?date=2019-09-01 HTTP/1.1" 200 267 "-" "curl/8.5.0"
+2024-11-19 16:13:34 [info]: Lessons retrieved successfully. Count: 4
+2024-11-19 16:13:34 [info]: ::1 - - [19/Nov/2024:13:13:34 +0000] "GET /api/v1/lessons?date=2019-09-01,2019-09-04 HTTP/1.1" 200 897 "-" "curl/8.5.0"
+2024-11-19 16:13:40 [info]: Lessons retrieved successfully. Count: 5
+2024-11-19 16:13:40 [info]: ::1 - - [19/Nov/2024:13:13:40 +0000] "GET /api/v1/lessons?status=1 HTTP/1.1" 200 1167 "-" "curl/8.5.0"
+2024-11-19 16:13:47 [info]: Lessons retrieved successfully. Count: 5
+2024-11-19 16:13:47 [info]: ::1 - - [19/Nov/2024:13:13:47 +0000] "GET /api/v1/lessons?teacherIds=1,3 HTTP/1.1" 200 1027 "-" "curl/8.5.0"
+2024-11-19 16:13:56 [info]: Lessons retrieved successfully. Count: 1
+2024-11-19 16:13:56 [info]: ::1 - - [19/Nov/2024:13:13:56 +0000] "GET /api/v1/lessons?studentsCount=3 HTTP/1.1" 200 267 "-" "curl/8.5.0"
+2024-11-19 16:14:15 [info]: Lessons retrieved successfully. Count: 4
+2024-11-19 16:14:15 [info]: ::1 - - [19/Nov/2024:13:14:15 +0000] "GET /api/v1/lessons?studentsCount=2,4 HTTP/1.1" 200 947 "-" "curl/8.5.0"
+2024-11-19 16:14:21 [info]: Lessons retrieved successfully. Count: 5
+2024-11-19 16:14:21 [info]: ::1 - - [19/Nov/2024:13:14:21 +0000] "GET /api/v1/lessons?page=2&lessonsPerPage=5 HTTP/1.1" 200 1071 "-" "curl/8.5.0"
+2024-11-19 16:14:31 [info]: Lessons retrieved successfully. Count: 2
+2024-11-19 16:14:31 [info]: ::1 - - [19/Nov/2024:13:14:31 +0000] "GET /api/v1/lessons?status=1&teacherIds=1,3&date=2019-09-01,2019-09-30 HTTP/1.1" 200 399 "-" "curl/8.5.0"
+2024-11-19 16:14:40 [warn]: Invalid page or lessonsPerPage value.
+2024-11-19 16:14:40 [info]: ::1 - - [19/Nov/2024:13:14:40 +0000] "GET /api/v1/lessons?page=-1&lessonsPerPage=0 HTTP/1.1" 400 62 "-" "curl/8.5.0"
+2024-11-19 16:14:50 [warn]: Invalid studentsCount value provided.
+2024-11-19 16:14:50 [info]: ::1 - - [19/Nov/2024:13:14:50 +0000] "GET /api/v1/lessons?studentsCount=abc HTTP/1.1" 400 49 "-" "curl/8.5.0"
